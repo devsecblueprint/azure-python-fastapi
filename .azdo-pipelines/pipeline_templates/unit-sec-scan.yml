@@ -23,26 +23,24 @@ jobs:
     pool:
       vmImage: ubuntu-latest
 
-      steps:
-        - checkout: self
-          displayName: "Checkout repo"
-
-        - script: |
-            echo "Building Docker image..."
-            docker build -t awesome-fastapi:$(Build.SourceVersion) .
-          displayName: "Build Docker Image"
-
-        - task: trivy@2
-          inputs:
-            version: "latest"
-            type: "image"
-            image: awesome-fastapi:$(Build.SourceVersion)
-            severities: "HIGH, CRITICAL"
-            reports: "sarif"
-            publish: true
-          displayName: "Run Trivy Vulnerability Scanner"
-          env:
-            GITHUB_TOKEN: $(GITHUB_TOKEN)
+    steps:
+      - checkout: self
+        displayName: "Checkout repo"
+      - script: |
+          echo "Building Docker image..."
+          docker build -t awesome-fastapi:$(Build.SourceVersion) .
+        displayName: "Build Docker Image"
+      - task: trivy@2
+        inputs:
+          version: "latest"
+          type: "image"
+          image: awesome-fastapi:$(Build.SourceVersion)
+          severities: "HIGH, CRITICAL"
+          reports: "sarif"
+          publish: true
+        displayName: "Run Trivy Vulnerability Scanner"
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
 
   - job: owasp_zap_scan
     pool:
@@ -72,17 +70,7 @@ jobs:
           -x zap-report.xml \
           -r zap-report.html
         displayName: "Run OWASP ZAP Security Scanner"
-      ### work in progress
-      #  - task: OwaspZapScan@0
-      #     inputs:
-      #       ZapApiUrl: 'http://localhost:$(ProxyPort)'
-      #       TargetUrl: 'http://0.0.0.0:8080'
-      #       NewContext: true
-      #       zapImageName: 'awesome-fastapi:$(Build.SourceVersion) .'
-      #       ShowContextListConfig: true
-      #       ExecuteAjaxSpiderScan: true
-      #       ExecuteSpiderScan: true
-      #    displayName: 'Run OWASP ZAP Security Scanner
+
       - task: PublishTestResults@2
         inputs:
           testResultsFormat: "NUnit"
