@@ -29,14 +29,14 @@ jobs:
 
         - script: |
             echo "Building Docker image..."
-            docker build -t awesome-fastapi:$(Build.SourceVersion).
+            docker build -t awesome-fastapi:$(Build.SourceVersion) .
           displayName: "Build Docker Image"
 
         - task: trivy@2
           inputs:
             version: "latest"
             type: "image"
-            image: awesome-fastapi:$(Build.SourceVersion).
+            image: awesome-fastapi:$(Build.SourceVersion)
             severities: "HIGH, CRITICAL"
             reports: "sarif"
             publish: true
@@ -57,7 +57,7 @@ jobs:
       - script: |
           echo "Building Docker image..."
           docker build -t awesome-fastapi:$(Build.SourceVersion) .
-          docker run -d -p 8080:80 awesome-fastapi:$(Build.SourceVersion) .
+          docker run -d -p 8080:80 awesome-fastapi:$(Build.SourceVersion)
         displayName: "Build Docker Image"
 
       - script: sleep 30
