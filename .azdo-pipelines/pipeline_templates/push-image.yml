@@ -13,7 +13,7 @@ jobs:
           command: buildAndPush
           containerRegistry: $(ACR_SERVICE_CONNECTION) # name of your ADO service connection to ACR
           repository: $(image_repo) # e.g. myacr.azurecr.io/myapp
-          dockerfile: $(src/Dockerfile) # e.g. src/Dockerfile
+          dockerfile: $(./Dockerfile) # e.g. Dockerfile
           tags: |
             latest
             $(Build.BuildId)
