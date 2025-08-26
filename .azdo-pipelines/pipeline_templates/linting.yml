@@ -1,15 +1,14 @@
-
-  ### Linting and Formatting checks
+### Linting and Formatting checks
 parameters:
   - name: python_version
     type: string
-    default: '3.12.6'
+    default: "3.12.6"
 
 jobs:
   - job: lint_formating
-    displayName: 'Lint and Format'
+    displayName: "Lint and Format"
     pool:
-      vmImage: 'ubuntu-latest'
+      vmImage: "ubuntu-latest"
     steps:
       - checkout: self
 
