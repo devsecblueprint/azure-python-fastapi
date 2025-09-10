@@ -4,8 +4,6 @@
 ## This file is used to call all the other templates
 variables:
   - group: Infrastructure Pipeline Variables
-  - name: ACR_SERVICE_CONNECTION
-  - name: image_repo
 
 pool:
   vmImage: "ubuntu-latest"
@@ -16,7 +14,7 @@ stages:
     jobs:
       - template: "pipeline_templates/build-image.yml"
 
-  - stage: lint_formating
+  - stage: lint_formatting
     displayName: "Lint and Format"
     jobs:
       - template: pipeline_templates/linting.yml

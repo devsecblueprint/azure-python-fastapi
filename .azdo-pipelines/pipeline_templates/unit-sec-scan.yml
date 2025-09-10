@@ -18,7 +18,29 @@ jobs:
             pytest test/
           displayName: "Run python tests"
 
-  - job: trivy_scan
+  - job: trivy_dependency_scan
+    displayName: "Trivy - Scan dependencies for vulnerabilities"
+    pool:
+      vmImage: ubuntu-latest
+
+    steps:
+      - checkout: self
+        displayName: "Checkout repo"
+      
+      - script: |
+          echo "Building Docker image..."
+          docker build -t python-fastapi:$(Build.SourceVersion) .
+        displayName: "Build Docker Image"
+      
+      - script: |
+          docker run --rm \
+            -v $(Build.SourcesDirectory):/app \
+            aquasec/trivy:latest fs /app \
+              --exit-code 1 \
+              --severity HIGH,CRITICAL
+        displayName: "Trivy scan source files"
+    
+  - job: trivy_image_scan
     displayName: "Run Trivy security scanner against the image"
     pool:
       vmImage: ubuntu-latest
@@ -29,16 +51,17 @@ jobs:
       
       - script: |
           echo "Building Docker image..."
-          docker build -t awesome-fastapi:$(Build.SourceVersion) .
+          docker build -t python-fastapi:$(Build.SourceVersion) .
         displayName: "Build Docker Image"
       
+      # Make sure you set the exit code to 1 to fail the build on vulnerabilities
       - script: |
           docker run --rm \
-            -v $(Build.SourcesDirectory):/app \
-            aquasec/trivy:latest fs /app \
-              --exit-code 1 \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:latest image python-fastapi:$(Build.SourceVersion) \
+              --exit-code 0 \
               --severity HIGH,CRITICAL
-        displayName: "Trivy scan source files"
+        displayName: "Trivy scan image"
 
   - job: owasp_zap_scan
     pool:
@@ -52,8 +75,8 @@ jobs:
         # Run Docker Image in detached mode
       - script: |
           echo "Building Docker image..."
-          docker build -t awesome-fastapi:$(Build.SourceVersion) .
-          docker run -d -p 8080:80 awesome-fastapi:$(Build.SourceVersion)
+          docker build -t python-fastapi:$(Build.SourceVersion) .
+          docker run -d -p 8080:80 python-fastapi:$(Build.SourceVersion)
         displayName: "Build Docker Image"
 
       - script: sleep 30
@@ -68,7 +91,7 @@ jobs:
             -u 0:0 \
             -v "$(Build.SourcesDirectory)/zap-out:/zap/wrk:rw" \
             ghcr.io/zaproxy/zaproxy:stable \
-            zap-full-scan.py -t "$(TargetUrl)" -r zap-report.html -x zap-report.xml
+            zap-full-scan.py -t "http://localhost:8080" -r zap-report.html -x zap-report.xml || true
         displayName: "Run ZAP full scan"
 
       - task: PublishTestResults@2

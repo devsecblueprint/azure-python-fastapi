@@ -1,3 +1,5 @@
+[![Build Status](https://dev.azure.com/devsecblueprint/python-fastapi/_apis/build/status%2FDefault?branchName=main)](https://dev.azure.com/devsecblueprint/python-fastapi/_build/latest?definitionId=6&branchName=main)
+
 # Python FastAPI
 
 This project sets up a simple FastAPI application (with some vulnerabilites) within a Docker container. It uses the official Python runtime and includes all necessary configurations to deploy a FastAPI app with Docker. The container will expose the app on port 80 and automatically run the FastAPI app on startup.
