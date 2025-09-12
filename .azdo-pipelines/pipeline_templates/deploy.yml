@@ -1,0 +1,29 @@
+
+jobs:
+  - job: deploy_to_aks
+    displayName: "Deploy to AKS"
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - checkout: self
+
+      - task: AzureCLI@2
+        displayName: "Set image tag in manifest"
+        inputs:
+          azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            sed -i "s|image:.*|image: $(ACR_IMAGE):latest|" ./deployment.yaml
+
+      - task: Kubernetes@1
+        displayName: "Deploy to AKS"
+        inputs:
+          connectionType: 'Azure Resource Manager'
+          azureSubscriptionEndpoint: '$(AZURE_SERVICE_CONNECTION)'
+          azureResourceGroup: '$(RESOURCE_GROUP_NAME)'
+          kubernetesCluster: '$(AKS_CLUSTER_NAME)'
+          namespace: 'default'
+          command: apply
+          useConfigurationFile: true
+          configuration: ./deployment.yaml

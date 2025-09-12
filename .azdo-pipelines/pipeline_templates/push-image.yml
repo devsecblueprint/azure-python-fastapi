@@ -20,5 +20,4 @@ jobs:
           containerRegistry: $(ACR_SERVICE_CONNECTION) # name of your ADO service connection to ACR
           repository: $(ACR_URL)/apps/python-fastapi # e.g. myacr.azurecr.io/myapp
           dockerfile: ./Dockerfile # e.g. Dockerfile
-          tags: |
-            $(Build.SourceVersion)-$(Build.BuildId)
+          tags: latest
