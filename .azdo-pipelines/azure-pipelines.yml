@@ -16,6 +16,8 @@ stages:
 
   - stage: lint_formatting
     displayName: "Lint and Format"
+    dependsOn: build_image
+    condition: succeeded()
     jobs:
       - template: pipeline_templates/linting.yml
         parameters:
@@ -23,11 +25,15 @@ stages:
 
   - stage: unit_and_security_testing
     displayName: "Unit security testing"
+    dependsOn: lint_formatting
+    condition: succeeded()
     jobs:
       - template: "pipeline_templates/unit-sec-scan.yml"
 
   - stage: push_image
     displayName: "Push Docker Image"
+    dependsOn: unit_and_security_testing
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     jobs:
       - template: "pipeline_templates/push-image.yml"
 
