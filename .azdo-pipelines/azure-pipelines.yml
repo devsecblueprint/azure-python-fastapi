@@ -31,6 +31,13 @@ stages:
     jobs:
       - template: "pipeline_templates/push-image.yml"
 
+  - stage: deploy
+    displayName: "Deploy to AKS"
+    dependsOn: push_image
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - template: "pipeline_templates/deploy.yml"
+
 trigger:
   branches:
     include:
